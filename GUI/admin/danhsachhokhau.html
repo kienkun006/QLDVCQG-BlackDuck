@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Hộ Khẩu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        body { font-family: Arial, sans-serif;  
+            background-image:
+            linear-gradient(rgba(13, 71, 161, 0.65), rgba(13, 71, 161, 0.65)),
+            url('maxresdefault.jpg');
+            background-size: cover;
+            background-position: center ;
+            padding: 70px;}
+        .container { max-width: 1000px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        h1 { color: #0d47a1; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #0056b3; color: white; }
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; color: rgb(255, 255, 255); }
+        .btn-add { background: #28a745; }
+        .btn-edit { background: #f0ad4e; }
+        .btn-delete { background: #d9534f; }
+        .actions-cell { display: flex; gap: 8px; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Quản lý Hộ Khẩu</h1>
+        <button class="btn btn-add" onclick="addHoKhau()">Thêm mới</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã Hộ Khẩu</th>
+                    <th>CCCD Chủ Hộ</th>
+                    <th>Số Nhân Khẩu</th>
+                    <th>Địa Chỉ</th>
+                    <th>Ngày Cấp</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="hokhau-table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const apiBase = 'http://localhost:3000/api/hokhau';
+
+        async function loadHoKhau() {
+            const response = await fetch(apiBase);
+            const result = await response.json();
+            const tbody = document.getElementById('hokhau-table-body');
+            tbody.innerHTML = '';
+
+            result.data.forEach(hk => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${hk.id_hoKhau}</td>
+                    <td>${hk.chuHo_cccd}</td>
+                    <td>${hk.soNhanKhau}</td>
+                    <td>${hk.diaChi}</td>
+                    <td>${hk.ngayCap}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-edit" onclick="editHoKhau('${hk.id_hoKhau}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-delete" onclick="deleteHoKhau('${hk.id_hoKhau}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function deleteHoKhau(id) {
+            if (!confirm(`Bạn chắc chắn muốn xóa Hộ Khẩu ${id}?`)) return;
+
+            const response = await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+            const result = await response.json();
+            alert(result.message);
+            loadHoKhau();
+        }
+
+        async function addHoKhau() {
+            const id_hoKhau = prompt('Nhập Mã Hộ Khẩu (9 số):');
+            if (!id_hoKhau || !/^\d{9}$/.test(id_hoKhau)) return alert('Mã hộ khẩu không hợp lệ!');
+
+            const chuHo_cccd = prompt('Nhập CCCD Chủ Hộ:');
+            const soNhanKhau = prompt('Nhập Số Nhân Khẩu:', 1);
+            const diaChi = prompt('Nhập Địa Chỉ:');
+            const ngayCap = prompt('Nhập Ngày Cấp (YYYY-MM-DD):');
+
+            const data = { id_hoKhau, chuHo_cccd, soNhanKhau: Number(soNhanKhau), diaChi, ngayCap };
+
+            const response = await fetch(apiBase, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            alert(result.message);
+            loadHoKhau();
+        }
+
+        async function editHoKhau(id) {
+            const newDiaChi = prompt('Nhập địa chỉ mới:');
+            if (!newDiaChi) return;
+
+            const response = await fetch(`${apiBase}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diaChi: newDiaChi })
+            });
+            const result = await response.json();
+            alert(result.message);
+            loadHoKhau();
+        }
+
+        window.onload = loadHoKhau;
+    </script>
+</body>
+
+</html>

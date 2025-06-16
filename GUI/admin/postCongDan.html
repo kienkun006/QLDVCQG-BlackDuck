@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Công Dân Mới</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; color: #333; }
+        .container { max-width: 700px; margin: 40px auto; padding: 30px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #0056b3; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn { display: block; width: 100%; padding: 12px; background-color: #0056b3; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        .btn:hover { background-color: #004494; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Thêm Công Dân Mới</h1>
+
+        <form id="add-citizen-form">
+            <div class="form-group">
+                <label for="id_cccd">Số CCCD</label>
+                <input type="text" id="id_cccd" required />
+            </div>
+
+            <div class="form-group">
+                <label for="hoVaTen">Họ và Tên</label>
+                <input type="text" id="hoVaTen" required />
+            </div>
+
+            <div class="form-group">
+                <label for="dob">Ngày sinh</label>
+                <input type="date" id="dob" required />
+            </div>
+
+            <div class="form-group">
+                <label for="gioiTinh">Giới tính</label>
+                <select id="gioiTinh" required>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="danToc">Dân tộc</label>
+                <input type="text" id="danToc" required />
+            </div>
+
+            <div class="form-group">
+                <label for="quocTich">Quốc tịch</label>
+                <input type="text" id="quocTich" value="Việt Nam" required />
+            </div>
+
+            <div class="form-group">
+                <label for="noiThuongTru">Nơi thường trú</label>
+                <input type="text" id="noiThuongTru" required />
+            </div>
+
+            <div class="form-group">
+                <label for="queQuan">Quê quán</label>
+                <input type="text" id="queQuan" required />
+            </div>
+
+            <div class="form-group">
+                <label for="sinhTracHoc">Đặc điểm nhận dạng</label>
+                <input type="text" id="sinhTracHoc" required />
+            </div>
+
+            <div class="form-group">
+                <label for="tonGiao">Tôn giáo</label>
+                <input type="text" id="tonGiao" />
+            </div>
+
+            <button type="submit" class="btn">Thêm Công Dân</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('add-citizen-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const citizen = {
+                id_cccd: document.getElementById('id_cccd').value,
+                hoVaTen: document.getElementById('hoVaTen').value,
+                dob: document.getElementById('dob').value,
+                gioiTinh: document.getElementById('gioiTinh').value,
+                danToc: document.getElementById('danToc').value,
+                quocTich: document.getElementById('quocTich').value,
+                noiThuongTru: document.getElementById('noiThuongTru').value,
+                queQuan: document.getElementById('queQuan').value,
+                sinhTracHoc: document.getElementById('sinhTracHoc').value,
+                tonGiao: document.getElementById('tonGiao').value || 'Không'
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/congdan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(citizen)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Thêm công dân thành công!');
+                    this.reset();
+                } else {
+                    alert(result.message || 'Thêm công dân thất bại!');
+                }
+            } catch (error) {
+                console.error('Lỗi khi thêm công dân:', error);
+                alert('Không thể kết nối đến máy chủ!');
+            }
+        });
+    </script>
+
+</body>
+</html>
